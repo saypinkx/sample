@@ -36,20 +36,23 @@ class BasePostgresRepository(BaseInterfaceRepository[T], Generic[T]):
             raise EntityNotFound(f"{self._model_type.name()} with id not found")
         return result
 
-    async def delete(self, instance: BaseModel) -> None:
-        instance.deleted_at = datetime.now()
-        self._session.add(instance)
+    async def delete(self, instance: T) -> None:
+        db_model = await self._get(instance.id)
+        db_model.deleted_at = datetime.now()
+        self._session.add(db_model)
         return None
 
-    async def _hard_delete(self, instance: BaseModel) -> None:
-        await self._session.delete(instance)
+    async def _hard_delete(self, instance: T) -> None:
+        db_model = await self._get(instance.id)
+        await self._session.delete(db_model)
         return None
 
-    async def update(self, instance: BaseModel, *args, **kwargs) -> T:
+    async def update(self, instance: T, *args, **kwargs) -> T:
+        db_model = await self._get(instance.id)
         for key, value in kwargs.items():
-            setattr(instance, key, value)
-        self._session.add(instance)
-        return self._dto_type.to_schema(instance)
+            setattr(db_model, key, value)
+        self._session.add(db_model)
+        return self._dto_type.to_schema(db_model)
 
     async def get(self, instance_id: int) -> T:
         document = await self._get(instance_id)
