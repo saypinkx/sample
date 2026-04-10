@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Generic, TypeVar
 
-from sqlalchemy import delete as sql_delete
 from sqlalchemy import select
-from sqlalchemy import update as sql_update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.components.base.domain.dto.base import BaseDTO
@@ -39,26 +37,24 @@ class BasePostgresRepository(BaseInterfaceRepository[T], Generic[T]):
         return result
 
     async def delete(self, instance: T) -> None:
-        stmt = sql_update(self._model_type).where(
-            self._model_type.id == instance.id
-        ).values(deleted_at=datetime.now())
-        await self._session.execute(stmt)
+        db_model = self._model_type(**instance.to_dict())
+        db_model.deleted_at = datetime.now()
+        await self._session.merge(db_model)
         return None
 
     async def _hard_delete(self, instance: T) -> None:
-        stmt = sql_delete(self._model_type).where(
-            self._model_type.id == instance.id
-        )
-        await self._session.execute(stmt)
+        db_model = await self._session.merge(self._model_type(**instance.to_dict()))
+        await self._session.delete(db_model)
         return None
 
-    async def update(self, instance: T, *args, **kwargs) -> T:
-        stmt = sql_update(self._model_type).where(
-            self._model_type.id == instance.id
-        ).values(**kwargs).returning(self._model_type)
-        result = await self._session.execute(stmt)
-        updated_model = result.scalar_one()
-        return self._dto_type.to_schema(updated_model)
+    async def update(self, instance_id: int, *args, **kwargs) -> T:
+        db_model = await self._get(instance_id)
+        for key, value in kwargs.items():
+            setattr(db_model, key, value)
+        
+        self._session.add(db_model)
+        await self._session.flush()
+        return self._dto_type.to_schema(db_model)
 
     async def get(self, instance_id: int) -> T:
         document = await self._get(instance_id)

@@ -33,13 +33,12 @@ class BaseMockRepository(BaseInterfaceRepository[T], Generic[T]):
             )
         return self._storage[instance_id]
 
-    async def update(self, instance: T, **kwargs) -> T:
-        # В моке считаем, что передается DTO
+    async def update(self, instance_id: int, **kwargs) -> T:
+        instance = await self.get(instance_id)
         current_data = instance.to_dict()
         updated_data = {**current_data, **kwargs, "updated_at": datetime.utcnow()}
         updated_instance = self._dto_type(**updated_data)
-        if instance.id in self._storage:
-            self._storage[instance.id] = updated_instance
+        self._storage[instance_id] = updated_instance
         return updated_instance
 
     async def delete(self, instance: T) -> None:
