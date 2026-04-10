@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Generic, TypeVar
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.components.base.domain.dto.base import BaseDTO
 from src.components.base.infra.exceptions.not_found import EntityNotFound
 from src.components.base.infra.models.postgres.base import BaseModel
 from src.components.base.infra.repositories.interface import BaseInterfaceRepository
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T", bound=BaseDTO)
 
@@ -35,19 +36,16 @@ class BasePostgresRepository(BaseInterfaceRepository[T], Generic[T]):
             raise EntityNotFound(f"{self._model_type.name()} with id not found")
         return result
 
-    async def delete(self, instance_id: int) -> None:
-        instance = await self._get(instance_id)
+    async def delete(self, instance: BaseModel) -> None:
         instance.deleted_at = datetime.now()
         self._session.add(instance)
         return None
 
-    async def _hard_delete(self, instance_id: int) -> None:
-        instance = await self._get(instance_id)
+    async def _hard_delete(self, instance: BaseModel) -> None:
         await self._session.delete(instance)
         return None
 
-    async def update(self, instance_id: int, *args, **kwargs) -> T:
-        instance = await self._get(instance_id)
+    async def update(self, instance: BaseModel, *args, **kwargs) -> T:
         for key, value in kwargs.items():
             setattr(instance, key, value)
         self._session.add(instance)
