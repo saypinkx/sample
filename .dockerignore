@@ -1,0 +1,63 @@
+# Git
+.git/
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files (передаются через docker-compose / --env-file)
+.env
+.env.*
+local.env
+!.env.example
+
+# Linter / test caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Tests
+src/tests/
+
+# IDE
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+log/
+logs/
+
+# Docker-specific (не нужны внутри образа)
+docker-compose.yml
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Docs / CI
+README.md
+*.md
+.github/
+deploy.sh
+makefile
+
+# Local data
+docker_volumes/
+databases/
