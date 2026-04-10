@@ -6,7 +6,6 @@ from src.components.base.infra.repositories.interface import BaseInterfaceReposi
 
 T = TypeVar("T", bound=BaseDTO)
 
-
 class BaseMockRepository(BaseInterfaceRepository[T], Generic[T]):
     _dto_type: type[T]
 
@@ -33,12 +32,12 @@ class BaseMockRepository(BaseInterfaceRepository[T], Generic[T]):
             )
         return self._storage[instance_id]
 
-    async def update(self, instance_id: int, **kwargs) -> T:
-        instance = await self.get(instance_id)
+    async def update(self, instance: T, **kwargs) -> T:
         current_data = instance.to_dict()
         updated_data = {**current_data, **kwargs, "updated_at": datetime.utcnow()}
         updated_instance = self._dto_type(**updated_data)
-        self._storage[instance_id] = updated_instance
+        if hasattr(instance, "id") and instance.id in self._storage:
+            self._storage[instance.id] = updated_instance
         return updated_instance
 
     async def delete(self, instance: T) -> None:

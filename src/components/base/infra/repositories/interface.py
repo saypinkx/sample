@@ -5,7 +5,6 @@ from src.components.base.domain.dto.base import BaseDTO
 
 T = TypeVar("T", bound=BaseDTO)
 
-
 class BaseInterfaceRepository(ABC, Generic[T]):
     _dto_type: type[T]
 
@@ -16,7 +15,7 @@ class BaseInterfaceRepository(ABC, Generic[T]):
     async def create(self, **kwargs) -> T: ...
 
     @abstractmethod
-    async def update(self, instance_id: Any, *args, **kwargs) -> T: ...
+    async def update(self, instance: Any, *args, **kwargs) -> T: ...
 
     @abstractmethod
     async def delete(self, instance: Any) -> None: ...
