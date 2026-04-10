@@ -1,4 +1,4 @@
-FROM python:3.11.4-slim AS builder
+FROM python:3.12-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
@@ -17,7 +17,7 @@ WORKDIR /build
 COPY pyproject.toml poetry.lock ./
 RUN poetry install --only main
 
-FROM python:3.11.4-slim AS runtime
+FROM python:3.12-slim AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \

@@ -6,7 +6,7 @@ authors = []
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 aiofiles = "24.1.0"
 aiohttp = "3.12.14"
 alembic = "1.16.4"
@@ -85,7 +85,7 @@ line-length = { max = 88 }
 [tool.ruff]
 line-length = 88
 indent-width = 4
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F"]
